@@ -49,11 +49,14 @@ func (cassandra *Cassandra) Insert(
 		Query(statement, values...).
 		Consistency(gocql.Quorum).
 		MapScanCAS(existingData)
+	if err != nil {
+		return err
+	}
 	if !inserted {
 		return fmt.Errorf("Already exists")
 	}
 
-	return err
+	return nil
 }
 
 func (cassandra *Cassandra) Close() {

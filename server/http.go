@@ -12,6 +12,7 @@ import (
 func RunHTTP(address string, router http.Handler) {
 	server := http.Server{
 		Addr:         address,
+		Handler:      router,
 		IdleTimeout:  time.Second,
 		ReadTimeout:  time.Second,
 		WriteTimeout: time.Second,
@@ -30,7 +31,7 @@ func RunHTTP(address string, router http.Handler) {
 	signal.Notify(killSignal, os.Kill)
 
 	signaled := <-killSignal
-	fmt.Printf("Shutting server down (%s)\n", signaled)
+	fmt.Printf("Shutting server down (%sed)\n", signaled)
 
 	// Gracefully shut down the server
 	timeout, _ := context.WithTimeout(context.Background(), time.Second)

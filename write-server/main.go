@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gorilla/mux"
+
 	"github.com/hjhussaini/url-shortener/database"
 	"github.com/hjhussaini/url-shortener/server"
+	"github.com/hjhussaini/url-shortener/write-server/api"
 )
 
 func main() {
@@ -21,5 +24,10 @@ func main() {
 	}
 	defer cassandra.Close()
 
-	server.RunHTTP(host+":"+port, nil)
+	router := mux.NewRouter()
+
+	linkAPIs := api.NewLinkAPIs(cassandra)
+	linkAPIs.Register(router)
+
+	server.RunHTTP(host+":"+port, router)
 }

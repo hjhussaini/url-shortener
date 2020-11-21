@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+    database_server:
+        image: cassandra
+        ports:
+            - 9042:9042
+        volumes:
+            - ./data:/var/lib/cassandra
+    cache_server:
+        image: redis
+        ports:
+            - 6379:6379

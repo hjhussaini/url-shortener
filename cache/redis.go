@@ -7,20 +7,21 @@ import (
 )
 
 type RedisCache struct {
+	Name    string
 	Client  *redis.Client
 	Context context.Context
 }
 
-func (cache *RedisCache) Push(key string, value string) error {
-	return cache.Client.LPush(cache.Context, key, value).Err()
+func (cache *RedisCache) Push(value string) error {
+	return cache.Client.LPush(cache.Context, cache.Name, value).Err()
 }
 
-func (cache *RedisCache) Pop(key string) (string, error) {
-	return cache.Client.LPop(cache.Context, key).Result()
+func (cache *RedisCache) Pop() (string, error) {
+	return cache.Client.LPop(cache.Context, cache.Name).Result()
 }
 
-func NewRedisCache(address string, database int) *RedisCache {
-	cache := &RedisCache{}
+func NewRedisCache(address string, database int, name string) *RedisCache {
+	cache := &RedisCache{Name: name}
 	cache.Client = redis.NewClient(&redis.Options{
 		Addr: address,
 		DB:   database,

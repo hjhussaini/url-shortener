@@ -17,7 +17,7 @@ func (cache *RedisCache) Push(value string) error {
 }
 
 func (cache *RedisCache) Pop() (string, error) {
-	return cache.Client.LPop(cache.Context, cache.Name).Result()
+	return cache.Client.RPop(cache.Context, cache.Name).Result()
 }
 
 func NewRedisCache(address string, database int, name string) *RedisCache {

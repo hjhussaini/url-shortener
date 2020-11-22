@@ -8,13 +8,13 @@ import (
 
 // swagger:model
 type Link struct {
-	ShortURL    string        `json:"-"`
-	CustomURL   string        `json:"custom_url,omitempty"`
-	OriginalURL string        `json:"original_url"`
-	APIKey      string        `json:"api_key"`
-	UserName    string        `json:"user_name,omitempty"`
-	ExpireAt    time.Duration `json:"expire_at,omitempty"`
-	TTL         int64         `json:"-"`
+	UserID    string        `json:"user_id"`
+	UserName  string        `json:"user_name,omitempty"`
+	ShortURL  string        `json:"-"`
+	CustomURL string        `json:"custom_url,omitempty"`
+	LongURL   string        `json:"long_url"`
+	ExpireAt  time.Duration `json:"expire_at,omitempty"`
+	TTL       int64         `json:"-"`
 }
 
 func (link *Link) Table() string {
@@ -22,7 +22,7 @@ func (link *Link) Table() string {
 }
 
 func (link *Link) Fields() string {
-	return "short_url, original_url, api_key, user_name, expire_at"
+	return "user_id, short_url, long_url, expire_at"
 }
 
 func (link *Link) Insert(session database.Session) error {
@@ -30,6 +30,6 @@ func (link *Link) Insert(session database.Session) error {
 		link.TTL,
 		link.Table(),
 		link.Fields(),
-		link.ShortURL, link.OriginalURL, link.APIKey, link.UserName, link.ExpireAt,
+		link.UserID, link.ShortURL, link.LongURL, link.ExpireAt,
 	)
 }

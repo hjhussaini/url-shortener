@@ -24,6 +24,18 @@ func (keys *Keys) Count(session database.Session) int64 {
 	return count
 }
 
+func (keys *Keys) Select(session database.Session, count int) []string {
+	var value string
+	var values []string
+
+	result := session.Select(keys.Table(), keys.Fields(), "", count)
+	for result.Scan(&value) {
+		values = append(values, value)
+	}
+
+	return values
+}
+
 func (keys *Keys) Insert(session database.Session) error {
 	return session.Insert(0, keys.Table(), keys.Fields(), keys.Key)
 }

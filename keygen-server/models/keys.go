@@ -40,3 +40,10 @@ func (keys *Keys) Select(count int) []string {
 func (keys *Keys) Insert() error {
 	return keys.Session.Insert(0, keys.Table(), keys.Fields(), keys.Key)
 }
+
+func (keys *Keys) Delete() error {
+	fields_values := make(map[string]string)
+	fields_values["key"] = keys.Key
+
+	return keys.Session.Delete(keys.Table(), fields_values)
+}

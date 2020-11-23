@@ -12,8 +12,8 @@ type RedisCache struct {
 	Context context.Context
 }
 
-func (cache *RedisCache) Push(value string) error {
-	return cache.Client.LPush(cache.Context, cache.Name, value).Err()
+func (cache *RedisCache) Push(values ...interface{}) error {
+	return cache.Client.LPush(cache.Context, cache.Name, values...).Err()
 }
 
 func (cache *RedisCache) Pop() (string, error) {

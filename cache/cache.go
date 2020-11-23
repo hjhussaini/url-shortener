@@ -1,6 +1,6 @@
 package cache
 
 type Cache interface {
-	Push(value string) error
+	Push(value ...interface{}) error
 	Pop() (string, error)
 }

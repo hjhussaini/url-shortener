@@ -24,6 +24,23 @@ func (cassandra *Cassandra) Count(table string) (int64, error) {
 	return count, nil
 }
 
+func (cassandra *Cassandra) Select(
+	table string,
+	fields string,
+	condition string,
+	limit int,
+) SelectResult {
+	statement := fmt.Sprint("SELECT %s FROM %s", fields, table)
+	if condition != "" {
+		statement = statement + " WHERE " + condition
+	}
+	if limit > 0 {
+		statement = statement + fmt.Sprint(" LIMIT %d", limit)
+	}
+
+	return cassandra.Session.Query(statement).Consistency(gocql.One)
+}
+
 func (cassandra *Cassandra) Insert(
 	ttl int64,
 	table string,

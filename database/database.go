@@ -9,3 +9,7 @@ type Session interface {
 		values ...interface{},
 	) error
 }
+
+type SelectResult interface {
+	Scan(values ...interface{}) error
+}

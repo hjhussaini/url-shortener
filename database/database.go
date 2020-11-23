@@ -14,6 +14,7 @@ type Session interface {
 		fields string,
 		values ...interface{},
 	) error
+	Delete(table string, fields_values map[string]string) error
 }
 
 type SelectResult interface {

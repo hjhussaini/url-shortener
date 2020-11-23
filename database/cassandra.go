@@ -76,6 +76,20 @@ func (cassandra *Cassandra) Insert(
 	return nil
 }
 
+func (cassandra *Cassandra) Delete(table string, fields_values map[string]string) error {
+	statement := fmt.Sprintf("DELETE FROM %s WHERE ", table)
+	condition := ""
+	for field, value := range fields_values {
+		if condition != "" {
+			condition = condition + " AND "
+		}
+		condition = condition + fmt.Sprintf("%s = '%s'", field, value)
+	}
+	statement = statement + condition
+
+	return cassandra.Session.Query(statement).Consistency(gocql.Quorum).Exec()
+}
+
 func (cassandra *Cassandra) Close() {
 	if !cassandra.Session.Closed() {
 		cassandra.Session.Close()

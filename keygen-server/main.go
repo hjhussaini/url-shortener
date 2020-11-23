@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"encoding/base64"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -44,6 +45,8 @@ func main() {
 		Cache:   redisCache,
 	}
 	api.Caching()
+
+	http.HandleFunc("/keys", api.GetKey)
 
 	server.RunHTTP(host+":"+port, nil)
 }

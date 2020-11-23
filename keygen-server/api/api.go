@@ -7,7 +7,7 @@ import (
 	"github.com/hjhussaini/url-shortener/database"
 )
 
-type Keys struct {
+type API struct {
 	mutex   sync.Mutex
 	Session database.Session
 	Cache   cache.Cache

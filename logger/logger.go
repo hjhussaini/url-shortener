@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+func Info(format string, values ...interface{}) {
+	fmt.Printf("INFO\t"+format, values...)
+}
+
 func Fatal(err error) {
 	fmt.Println("FATAL\t", err)
 	os.Exit(1)

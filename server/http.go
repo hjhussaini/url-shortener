@@ -2,11 +2,12 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/hjhussaini/url-shortener/logger"
 )
 
 func RunHTTP(address string, router http.Handler) {
@@ -20,18 +21,17 @@ func RunHTTP(address string, router http.Handler) {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			logger.Fatal(err)
 		}
 	}()
-	fmt.Println("Listening on", address)
+	logger.Info("Listening on", address)
 
 	killSignal := make(chan os.Signal)
 	signal.Notify(killSignal, os.Interrupt)
 	signal.Notify(killSignal, os.Kill)
 
 	signaled := <-killSignal
-	fmt.Printf("Shutting server down (%sed)\n", signaled)
+	logger.Info("Shutting server down (%sed)\n", signaled)
 
 	// Gracefully shut down the server
 	timeout, _ := context.WithTimeout(context.Background(), time.Second)

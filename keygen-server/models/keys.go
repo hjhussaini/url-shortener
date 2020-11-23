@@ -6,6 +6,7 @@ import (
 
 // sqagger:model
 type Keys struct {
+	Session database.Session
 	// The unique key
 	Key string
 }
@@ -18,17 +19,17 @@ func (keys *Keys) Fields() string {
 	return "key"
 }
 
-func (keys *Keys) Count(session database.Session) int64 {
-	count, _ := session.Count(keys.Table())
+func (keys *Keys) Count() int64 {
+	count, _ := keys.Session.Count(keys.Table())
 
 	return count
 }
 
-func (keys *Keys) Select(session database.Session, count int) []string {
+func (keys *Keys) Select(count int) []string {
 	var value string
 	var values []string
 
-	result := session.Select(keys.Table(), keys.Fields(), "", count)
+	result := keys.Session.Select(keys.Table(), keys.Fields(), "", count)
 	for result.Scan(&value) {
 		values = append(values, value)
 	}
@@ -36,6 +37,6 @@ func (keys *Keys) Select(session database.Session, count int) []string {
 	return values
 }
 
-func (keys *Keys) Insert(session database.Session) error {
-	return session.Insert(0, keys.Table(), keys.Fields(), keys.Key)
+func (keys *Keys) Insert() error {
+	return keys.Session.Insert(0, keys.Table(), keys.Fields(), keys.Key)
 }

@@ -30,15 +30,15 @@ func (cassandra *Cassandra) Select(
 	condition string,
 	limit int,
 ) SelectResult {
-	statement := fmt.Sprint("SELECT %s FROM %s", fields, table)
+	statement := fmt.Sprintf("SELECT %s FROM %s", fields, table)
 	if condition != "" {
 		statement = statement + " WHERE " + condition
 	}
 	if limit > 0 {
-		statement = statement + fmt.Sprint(" LIMIT %d", limit)
+		statement = statement + fmt.Sprintf(" LIMIT %d", limit)
 	}
 
-	return cassandra.Session.Query(statement).Consistency(gocql.One)
+	return cassandra.Session.Query(statement).Consistency(gocql.One).Iter()
 }
 
 func (cassandra *Cassandra) Insert(

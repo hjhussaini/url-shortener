@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-redis/redis"
 )
@@ -10,6 +11,14 @@ type RedisCache struct {
 	Name    string
 	Client  *redis.Client
 	Context context.Context
+}
+
+func (cache *RedisCache) Set(
+	key string,
+	value interface{},
+	expiration time.Duration,
+) error {
+	return cache.Client.Set(cache.Context, key, value, expiration).Err()
 }
 
 func (cache *RedisCache) Push(values ...interface{}) error {

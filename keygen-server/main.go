@@ -8,7 +8,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hjhussaini/url-shortener/cache"
 	"github.com/hjhussaini/url-shortener/database"
+	"github.com/hjhussaini/url-shortener/keygen-server/api"
 	"github.com/hjhussaini/url-shortener/keygen-server/models"
 	"github.com/hjhussaini/url-shortener/server"
 )
@@ -25,6 +27,7 @@ func main() {
 		fmt.Println("ParseInt", err.Error())
 		os.Exit(1)
 	}
+	cacheServer := os.Getenv("CACHE_SERVER")
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
 
@@ -36,6 +39,13 @@ func main() {
 	defer cassandra.Close()
 
 	go keyGenerator(cassandra, time.Duration(keyGenerationInterval))
+
+	redisCache := cache.NewRedisCache(cacheServer, 0, "keys_cache")
+	api := api.API{
+		Session: cassandra,
+		Cache:   redisCache,
+	}
+	api.Caching()
 
 	server.RunHTTP(host+":"+port, nil)
 }
@@ -53,15 +63,15 @@ func generateKey(number int64) string {
 }
 
 func keyGenerator(session database.Session, interval time.Duration) {
-	keys := models.Keys{}
-	usedKeys := models.UsedKeys{}
-	number := keys.Count(session) + usedKeys.Count(session)
+	keys := models.Keys{Session: session}
+	usedKeys := models.UsedKeys{Session: session}
+	number := keys.Count() + usedKeys.Count()
 
 	time.Sleep(interval * time.Millisecond)
 	for range time.Tick(interval * time.Millisecond) {
 		number = number + 1
 		keys.Key = generateKey(number)
-		if err := keys.Insert(session); err != nil {
+		if err := keys.Insert(); err != nil {
 			fmt.Println(err.Error())
 		}
 	}

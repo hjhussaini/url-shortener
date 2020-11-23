@@ -20,11 +20,9 @@ func RunHTTP(address string, router http.Handler) {
 	}
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil {
-			logger.Fatal(err)
-		}
+		logger.Fatal(server.ListenAndServe())
 	}()
-	logger.Info("Listening on", address)
+	logger.Info("Listening on %s\n", address)
 
 	killSignal := make(chan os.Signal)
 	signal.Notify(killSignal, os.Interrupt)

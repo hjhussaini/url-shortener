@@ -21,6 +21,10 @@ func (cache *RedisCache) Set(
 	return cache.Client.Set(cache.Context, key, value, expiration).Err()
 }
 
+func (cache *RedisCache) Get(key string) (string, error) {
+	return cache.Client.Get(cache.Context, key).Result()
+}
+
 func (cache *RedisCache) Push(values ...interface{}) error {
 	return cache.Client.LPush(cache.Context, cache.Name, values...).Err()
 }

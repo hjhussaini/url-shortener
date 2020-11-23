@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/md5"
 	"encoding/base64"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -12,6 +11,7 @@ import (
 	"github.com/hjhussaini/url-shortener/database"
 	"github.com/hjhussaini/url-shortener/keygen-server/api"
 	"github.com/hjhussaini/url-shortener/keygen-server/models"
+	"github.com/hjhussaini/url-shortener/logger"
 	"github.com/hjhussaini/url-shortener/server"
 )
 
@@ -24,8 +24,7 @@ func main() {
 		64,
 	)
 	if err != nil {
-		fmt.Println("ParseInt", err.Error())
-		os.Exit(1)
+		logger.Fatal(err)
 	}
 	cacheServer := os.Getenv("CACHE_SERVER")
 	host := os.Getenv("HOST")
@@ -33,8 +32,7 @@ func main() {
 
 	cassandra, err := database.CassandraConnect(databaseServer, databaseKeyspace)
 	if err != nil {
-		fmt.Println("Cassandra", err.Error())
-		os.Exit(1)
+		logger.Fatal(err)
 	}
 	defer cassandra.Close()
 
@@ -72,7 +70,7 @@ func keyGenerator(session database.Session, interval time.Duration) {
 		number = number + 1
 		keys.Key = generateKey(number)
 		if err := keys.Insert(); err != nil {
-			fmt.Println(err.Error())
+			logger.Error(err)
 		}
 	}
 }

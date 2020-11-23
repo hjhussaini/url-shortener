@@ -1,12 +1,12 @@
 package api
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/hjhussaini/url-shortener/cache"
 	"github.com/hjhussaini/url-shortener/database"
 	"github.com/hjhussaini/url-shortener/keygen-server/models"
+	"github.com/hjhussaini/url-shortener/logger"
 )
 
 type API struct {
@@ -22,11 +22,12 @@ func (api *API) Caching() error {
 	for _, value := range values {
 		usedKeys.Key = value
 		if err := usedKeys.Insert(); err != nil {
+			logger.Error(err)
 			continue
 		}
 		keys.Key = usedKeys.Key
 		if err := keys.Delete(); err != nil {
-			fmt.Println(err)
+			logger.Error(err)
 		}
 	}
 

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hjhussaini/url-shortener/database"
@@ -23,6 +24,12 @@ func (link *Link) Table() string {
 
 func (link *Link) Fields() string {
 	return "user_id, short_url, long_url, expire_at"
+}
+
+func (link *Link) Select(session database.Session) {
+	condition := fmt.Sprintf("short_url = '%s'", link.ShortURL)
+	result := session.Select(link.Table(), link.Fields(), condition, 1)
+	result.Scan(&link.UserID, &link.ShortURL, &link.LongURL, &link.ExpireAt)
 }
 
 func (link *Link) Insert(session database.Session) error {

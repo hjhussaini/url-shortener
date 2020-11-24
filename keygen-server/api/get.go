@@ -29,5 +29,7 @@ func (api *API) GetKey(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 	}
+
+	writer.Header().Add("Content-Type", "application/json")
 	common.WriteJSON(models.Data{Key: key}, writer)
 }

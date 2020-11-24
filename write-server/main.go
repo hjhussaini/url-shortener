@@ -35,6 +35,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", links.CreateURL).Methods(http.MethodPost)
+	router.HandleFunc("/", links.DeleteURL).Methods(http.MethodDelete)
 
 	server.RunHTTP(host+":"+port, router)
 }

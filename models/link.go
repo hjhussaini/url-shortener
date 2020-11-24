@@ -10,7 +10,7 @@ import (
 type Link struct {
 	UserID    string        `json:"user_id"`
 	UserName  string        `json:"user_name,omitempty"`
-	ShortURL  string        `json:"-"`
+	ShortURL  string        `json:"short_url"`
 	CustomURL string        `json:"custom_url,omitempty"`
 	LongURL   string        `json:"long_url"`
 	ExpireAt  time.Duration `json:"expire_at,omitempty"`
@@ -32,4 +32,12 @@ func (link *Link) Insert(session database.Session) error {
 		link.Fields(),
 		link.UserID, link.ShortURL, link.LongURL, link.ExpireAt,
 	)
+}
+
+func (link *Link) Delete(session database.Session) error {
+	fields_values := make(map[string]string)
+	fields_values["user_id"] = link.UserID
+	fields_values["short_url"] = link.ShortURL
+
+	return session.Delete(link.Table(), fields_values)
 }

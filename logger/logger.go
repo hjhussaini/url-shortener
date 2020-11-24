@@ -9,7 +9,7 @@ func Info(format string, values ...interface{}) {
 	fmt.Printf("INFO\t"+format, values...)
 }
 
-func Error(err error) {
+func Error(err ...interface{}) {
 	fmt.Println("ERROR\t", err)
 }
 

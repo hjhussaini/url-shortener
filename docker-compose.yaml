@@ -3,23 +3,35 @@ version: "2"
 services:
     database.server.com:
         image: cassandra
-        ports:
-            - 9042:9042
         volumes:
             - ./data:/var/lib/cassandra
     cache.server.com:
         image: redis
-        ports:
-            - 6379:6379
     keygen.server.com:
         build: ./keygen-server
         environment:
             - DATABASE_SERVER=database.server.com:9042
             - DATABASE_KEYSPACE=key_db
-            - KEY_GENERATION_INTERVAL=10000
+            - KEY_GENERATION_INTERVAL=1000
             - CACHE_SERVER=cache.server.com:6379
             - HOST=localhost
             - PORT=5100
+        depends_on:
+            - database.server.com
+            - cache.server.com
+        links:
+            - database.server.com
+            - cache.server.com
+    read.server.com:
+        build: ./read-server
+        environment:
+            - DATABASE_SERVER=database.server.com:9042
+            - DATABASE_KEYSPACE=shortlink_db
+            - CHACHE_SERVER=cache.server.com:6379
+            - HOST=localhost
+            - PORT=6100
+        ports:
+            - 6100:6100
         depends_on:
             - database.server.com
             - cache.server.com
@@ -34,6 +46,8 @@ services:
             - CHACHE_SERVER=cache.server.com:6379
             - HOST=localhost
             - PORT=7100
+        ports:
+            - 7100:7100
         depends_on:
             - database.server.com
             - cache.server.com

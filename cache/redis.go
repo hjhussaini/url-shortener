@@ -10,7 +10,6 @@ import (
 type RedisCache struct {
 	Name    string
 	Client  *redis.Client
-	Context context.Context
 }
 
 func (cache *RedisCache) Set(
@@ -18,19 +17,19 @@ func (cache *RedisCache) Set(
 	value interface{},
 	expiration time.Duration,
 ) error {
-	return cache.Client.Set(cache.Context, key, value, expiration).Err()
+	return cache.Client.Set(context.Background(), key, value, expiration).Err()
 }
 
 func (cache *RedisCache) Get(key string) (string, error) {
-	return cache.Client.Get(cache.Context, key).Result()
+	return cache.Client.Get(context.Background(), key).Result()
 }
 
 func (cache *RedisCache) Push(values ...interface{}) error {
-	return cache.Client.LPush(cache.Context, cache.Name, values...).Err()
+	return cache.Client.LPush(context.Background(), cache.Name, values...).Err()
 }
 
 func (cache *RedisCache) Pop() (string, error) {
-	return cache.Client.RPop(cache.Context, cache.Name).Result()
+	return cache.Client.RPop(context.Background(), cache.Name).Result()
 }
 
 func NewRedisCache(address string, database int, name string) *RedisCache {
@@ -39,7 +38,6 @@ func NewRedisCache(address string, database int, name string) *RedisCache {
 		Addr: address,
 		DB:   database,
 	})
-	cache.Context = context.Background()
 
 	return cache
 }

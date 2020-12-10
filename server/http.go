@@ -2,36 +2,49 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/hjhussaini/url-shortener/logger"
 )
 
-func RunHTTP(address string, router http.Handler) {
+func RunHTTP(port int, router http.Handler) error {
 	server := http.Server{
-		Addr:         address,
+		Addr:         fmt.Sprintf("0.0.0.0:%d", port),
 		Handler:      router,
 		IdleTimeout:  time.Second,
 		ReadTimeout:  time.Second,
 		WriteTimeout: time.Second,
 	}
 
+	errs := make(chan error, 2)
+
 	go func() {
-		logger.Fatal(server.ListenAndServe())
+		if err := server.ListenAndServe(); err != nil {
+			errs <- err
+			return
+		}
+		errs <- nil
 	}()
-	logger.Info("Listening on %s\n", address)
 
-	killSignal := make(chan os.Signal)
-	signal.Notify(killSignal, os.Interrupt)
-	signal.Notify(killSignal, os.Kill)
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, os.Interrupt)
+		signal.Notify(quit, os.Kill)
 
-	signaled := <-killSignal
-	logger.Info("Shutting server down (%sed)\n", signaled)
+		<-quit
 
-	// Gracefully shut down the server
-	timeout, _ := context.WithTimeout(context.Background(), time.Second)
-	server.Shutdown(timeout)
+		timeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := server.Shutdown(timeout); err != nil {
+			errs <- err
+			return
+		}
+
+		errs <- timeout.Err()
+	}()
+
+	return <-errs
 }

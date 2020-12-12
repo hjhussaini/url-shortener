@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/hjhussaini/url-shortener/cache"
 	"github.com/hjhussaini/url-shortener/database"
 	"github.com/hjhussaini/url-shortener/link-server/api"
 	"github.com/hjhussaini/url-shortener/server"
@@ -15,6 +16,7 @@ import (
 func main() {
 	databaseServer := os.Getenv("DATABASE_SERVER")
 	databaseKeyspace := os.Getenv("DATABASE_KEYSPACE")
+	cacheServer := os.Getenv("CACHE_SERVER")
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 
 	cassandra, err := database.CassandraConnect(databaseServer, databaseKeyspace)
@@ -23,8 +25,11 @@ func main() {
 	}
 	defer cassandra.Close()
 
+	redisCache := cache.NewRedisCache(cacheServer, 1, "keys_cache")
+
 	links := api.Links{
 		Session: cassandra,
+		Cache:   redisCache,
 	}
 
 	router := mux.NewRouter()

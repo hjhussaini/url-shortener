@@ -1,56 +1,41 @@
-version: "2"
+version: '2'
 
 services:
-    database.server.com:
+    database:
+        container_name: database.server.com
         image: cassandra
         volumes:
             - ./data:/var/lib/cassandra
-    cache.server.com:
+        networks:
+            - shortlink_network
+
+    cache:
+        container_name: cache.server.com
         image: redis
-    keygen.server.com:
-        build: ./keygen-server
+        networks:
+            - shortlink_network
+
+    link-server:
+        container_name: link.server.com
+        image: link.server.com
+        build:
+            context: ./link-server
         environment:
-            - DATABASE_SERVER=database.server.com:9042
-            - DATABASE_KEYSPACE=key_db
-            - KEY_GENERATION_INTERVAL=1000
-            - CACHE_SERVER=cache.server.com:6379
-            - HOST=localhost
-            - PORT=5100
-        depends_on:
-            - database.server.com
-            - cache.server.com
-        links:
-            - database.server.com
-            - cache.server.com
-    read.server.com:
-        build: ./read-server
-        environment:
-            - DATABASE_SERVER=database.server.com:9042
+            - DATABASE_SERVER=database.server.com
             - DATABASE_KEYSPACE=shortlink_db
-            - CHACHE_SERVER=cache.server.com:6379
-            - HOST=localhost
-            - PORT=6100
+            - HOST=0.0.0.0
+            - PORT=5300
         ports:
-            - 6100:6100
-        depends_on:
-            - database.server.com
-            - cache.server.com
+            - 5300:5300
+        networks:
+            - shortlink_network
         links:
-            - database.server.com
-            - cache.server.com
-    write.server.com:
-        build: ./write-server
-        environment:
-            - DATABASE_SERVER=database.server.com:9042
-            - DATABASE_KEYSPACE=shortlink_db
-            - CHACHE_SERVER=cache.server.com:6379
-            - HOST=localhost
-            - PORT=7100
-        ports:
-            - 7100:7100
+            - database
+            - cache
         depends_on:
-            - database.server.com
-            - cache.server.com
-        links:
-            - database.server.com
-            - cache.server.com
+            - database
+            - cache
+
+networks:
+    shortlink_network:
+        driver: bridge
